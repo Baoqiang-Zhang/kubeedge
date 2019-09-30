@@ -97,6 +97,10 @@ The cert/key will be generated in the `/etc/kubeedge/ca` and `/etc/kubeedge/cert
     ./cloudcore
     ```
 
++ (**Optional**)Run `admission`, this feature is still being evaluated.
+    please read the docs in [install the admission webhook](../../build/admission/README.md)
+
+
 #### [Run as Kubernetes deployment](../../build/cloud/README.md)
 
 ### Run Edge
@@ -145,7 +149,7 @@ We have provided a sample node.json to add a node in kubernetes. Please make sur
 + Modify the `$GOPATH/src/github.com/kubeedge/kubeedge/edge/conf/edge.yaml` configuration file
     + Replace `edgehub.websocket.certfile` and `edgehub.websocket.keyfile` with your own certificate path
     + Update the IP address of the master in the `websocket.url` field. 
-    + replace `fb4ebb70-2783-42b8-b3ef-63e2fd6d242e` with edge node name in edge.yaml for the below fields :
+    + replace `edge-node` with edge node name in edge.yaml for the below fields :
         + `websocket:URL`
         + `controller:node-id`
         + `edged:hostname-override`

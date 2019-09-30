@@ -3,11 +3,14 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+
+	api "k8s.io/api/core/v1"
+
 	"github.com/kubeedge/beehive/pkg/core/context"
 	"github.com/kubeedge/beehive/pkg/core/model"
 	"github.com/kubeedge/kubeedge/edge/pkg/common/message"
 	"github.com/kubeedge/kubeedge/edge/pkg/common/modules"
-	api "k8s.io/api/core/v1"
+	"github.com/kubeedge/kubeedge/edge/pkg/metamanager"
 )
 
 // ConfigMapsGetter has a method to return a ConfigMapInterface.
@@ -70,7 +73,7 @@ func (c *configMaps) Get(name string) (*api.ConfigMap, error) {
 		}
 	}
 
-	if msg.GetOperation() == model.ResponseOperation {
+	if msg.GetOperation() == model.ResponseOperation && msg.GetSource() == metamanager.MetaManagerModuleName {
 		return handleConfigMapFromMetaDB(content)
 	}
 	return handleConfigMapFromMetaManager(content)

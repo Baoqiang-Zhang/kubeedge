@@ -6,25 +6,30 @@ all:
 	cd edge && $(MAKE)
 	cd keadm && $(MAKE)
 	cd edgesite && $(MAKE)
-else ifeq ($(WHAT),cloud)
-# make all what=cloud, build cloud binary
+else ifeq ($(WHAT),cloudcore)
+# make all WHAT=cloudcore
 all:
-	cd cloud && $(MAKE)
-else ifeq ($(WHAT),edge)
+	cd cloud && $(MAKE) cloudcore
+else ifeq ($(WHAT),admission)
+# make all WHAT=admission
 all:
-# make all what=edge, build edge binary
+	cd cloud && $(MAKE) admission
+else ifeq ($(WHAT),edgecore)
+all:
+# make all WHAT=edgecore
 	cd edge && $(MAKE)
 else ifeq ($(WHAT),edgesite)
 all:
+# make all WHAT=edgesite
 	$(MAKE) -C edgesite
 else ifeq ($(WHAT),keadm)
 all:
-# make all what=edge, build edge binary
+# make all WHAT=keadm
 	cd keadm && $(MAKE)
 else
 # invalid entry
 all:
-	@echo $S"invalid option please choose to build either cloud, edge, keadm, edgesite or all together"
+	@echo $S"invalid option please choose to build either cloudcore, admission, edgecore, keadm, edgesite or all together"
 endif
 
 # unit tests
@@ -87,18 +92,26 @@ e2e_test:
 performance_test:
 	bash tests/performance/scripts/jenkins.sh
 
-IMAGE_TAG ?= $(shell git describe --tags)
-
-.PHONY: cloudimage
-cloudimage:
-	docker build -t kubeedge/cloudcore:${IMAGE_TAG} -f build/cloud/Dockerfile .
-
 .PHONY: keadm_lint
 keadm_lint:
 	make -C keadm lint
 
 QEMU_ARCH ?= x86_64
 ARCH ?= amd64
+
+IMAGE_TAG ?= $(shell git describe --tags)
+
+.PHONY: cloudimage
+cloudimage:
+	docker build -t kubeedge/cloudcore:${IMAGE_TAG} -f build/cloud/Dockerfile .
+
+.PHONY: admissionimage
+admissionimage:
+	docker build -t kubeedge/admission:${IMAGE_TAG} -f build/admission/Dockerfile .
+
+.PHONY: csidriverimage
+csidriverimage:
+	docker build -t kubeedge/csidriver:${IMAGE_TAG} -f build/csidriver/Dockerfile .
 
 .PHONY: edgeimage
 edgeimage:
@@ -122,9 +135,9 @@ edgesiteimage:
 	--build-arg RUN_FROM=${ARCH}/docker:dind \
 	-f build/edgesite/Dockerfile .
 
-.PHONY: depcheck
-depcheck:
-	dep check
+.PHONY: vendorCheck
+vendorCheck:
+	bash build/tools/verifyVendor.sh
 
 .PHONY: bluetoothdevice
 bluetoothdevice:

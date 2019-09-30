@@ -22,8 +22,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kubeedge/kubeedge/common/constants"
 	"gopkg.in/yaml.v2"
+
+	"github.com/kubeedge/kubeedge/common/constants"
 )
 
 //Write2File writes data into a file in path
@@ -149,9 +150,8 @@ func WriteEdgeModulesYamlFile(path string) error {
 //WriteEdgeYamlFile write conf/edge.yaml for edge component
 func WriteEdgeYamlFile(path string, modifiedEdgeYaml *EdgeYamlSt) error {
 	iface := "eth0"
-	edgeID := "fb4ebb70-2783-42b8-b3ef-63e2fd6d242e"
-	url := fmt.Sprintf("wss://0.0.0.0:10000/%s/fb4ebb70-2783-42b8-b3ef-63e2fd6d242e/events", DefaultProjectID)
-	version := "2.0.0"
+	edgeID := "edge-node"
+	url := fmt.Sprintf("wss://0.0.0.0:10000/%s/edge-node/events", DefaultProjectID)
 	runtimeType := "docker"
 
 	if nil != modifiedEdgeYaml {
@@ -159,13 +159,9 @@ func WriteEdgeYamlFile(path string, modifiedEdgeYaml *EdgeYamlSt) error {
 			url = modifiedEdgeYaml.EdgeHub.WebSocket.URL
 			edgeID = strings.Split(modifiedEdgeYaml.EdgeHub.WebSocket.URL, "/")[4]
 		}
-		if "" != modifiedEdgeYaml.EdgeD.Version {
-			version = modifiedEdgeYaml.EdgeD.Version
-		}
 		if "" != modifiedEdgeYaml.EdgeD.RuntimeType {
 			runtimeType = modifiedEdgeYaml.EdgeD.RuntimeType
 		}
-
 		if "" != modifiedEdgeYaml.EdgeD.InterfaceName {
 			iface = modifiedEdgeYaml.EdgeD.InterfaceName
 		}
@@ -206,11 +202,11 @@ func WriteEdgeYamlFile(path string, modifiedEdgeYaml *EdgeYamlSt) error {
 			ImageGCLowThreshold:               40,
 			MaximumDeadContainersPerContainer: 1,
 			DockerAddress:                     "unix:///var/run/docker.sock",
-			Version:                           version, RuntimeType: runtimeType,
-			RuntimeEndpoint: "/var/run/containerd/containerd.sock",
-			ImageEndpoint:   "/var/run/containerd/containerd.sock",
-			RequestTimeout:  2,
-			PodSandboxImage: "k8s.gcr.io/pause",
+			RuntimeType:                       runtimeType,
+			RuntimeEndpoint:                   "/var/run/containerd/containerd.sock",
+			ImageEndpoint:                     "/var/run/containerd/containerd.sock",
+			RequestTimeout:                    2,
+			PodSandboxImage:                   "k8s.gcr.io/pause",
 		},
 		Mesh: Mesh{
 			LB: LoadBalance{

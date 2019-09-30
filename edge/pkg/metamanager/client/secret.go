@@ -3,12 +3,14 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+
+	api "k8s.io/api/core/v1"
+
 	"github.com/kubeedge/beehive/pkg/core/context"
 	"github.com/kubeedge/beehive/pkg/core/model"
 	"github.com/kubeedge/kubeedge/edge/pkg/common/message"
 	"github.com/kubeedge/kubeedge/edge/pkg/common/modules"
-
-	api "k8s.io/api/core/v1"
+	"github.com/kubeedge/kubeedge/edge/pkg/metamanager"
 )
 
 //SecretsGetter is interface to get client secrets
@@ -71,7 +73,7 @@ func (c *secrets) Get(name string) (*api.Secret, error) {
 	}
 
 	//op := msg.GetOperation()
-	if msg.GetOperation() == model.ResponseOperation {
+	if msg.GetOperation() == model.ResponseOperation && msg.GetSource() == metamanager.MetaManagerModuleName {
 		return handleSecretFromMetaDB(content)
 	}
 	//else

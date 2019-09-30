@@ -8,7 +8,7 @@ mqtt:
 
 edgehub:
     websocket:
-        url: wss://0.0.0.0:10000/e632aba927ea4ac2b575ec1603d56f10/fb4ebb70-2783-42b8-b3ef-63e2fd6d242e/events
+        url: wss://0.0.0.0:10000/e632aba927ea4ac2b575ec1603d56f10/edge-node/events
         certfile: /etc/kubeedge/certs/edge.crt
         keyfile: /etc/kubeedge/certs/edge.key
         handshake-timeout: 30 #second
@@ -26,11 +26,11 @@ edgehub:
         protocol: websocket # websocket, quic
         heartbeat: 15  # second
         project-id: e632aba927ea4ac2b575ec1603d56f10
-        node-id: fb4ebb70-2783-42b8-b3ef-63e2fd6d242e
+        node-id: edge-node
 
 edged:
     register-node-namespace: default
-    hostname-override: fb4ebb70-2783-42b8-b3ef-63e2fd6d242e
+    hostname-override: edge-node
     interface-name: eth0
     edged-memory-capacity-bytes: 7852396000
     node-status-update-frequency: 10 # second
@@ -40,12 +40,11 @@ edged:
     image-gc-low-threshold: 40 # percent
     maximum-dead-containers-per-container: 1
     docker-address: unix:///var/run/docker.sock
-    version: v1.15.0-kubeedge-v1.0.0
     runtime-type: docker
     remote-runtime-endpoint: unix:///var/run/dockershim.sock
     remote-image-endpoint: unix:///var/run/dockershim.sock
     runtime-request-timeout: 2
-    podsandbox-image: k8s.gcr.io/pause
+    podsandbox-image: kubeedge/pause:3.1 # kubeedge/pause:3.1 for x86 arch , kubeedge/pause-arm:3.1 for arm arch, kubeedge/pause-arm64 for arm64 arch
     image-pull-progress-deadline: 60 # second
     cgroup-driver: cgroupfs
     node-ip: ""

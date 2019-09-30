@@ -28,17 +28,15 @@ import (
 	"fmt"
 	"net"
 
+	authenticationv1 "k8s.io/api/authentication/v1"
 	api "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
+	recordtools "k8s.io/client-go/tools/record"
 	cloudprovider "k8s.io/cloud-provider"
 	"k8s.io/kubernetes/pkg/util/mount"
 	"k8s.io/kubernetes/pkg/volume"
-
-	"k8s.io/apimachinery/pkg/types"
-
-	authenticationv1 "k8s.io/api/authentication/v1"
-	recordtools "k8s.io/client-go/tools/record"
 	"k8s.io/kubernetes/pkg/volume/util/subpath"
 )
 
@@ -91,7 +89,7 @@ func (evh *edgedVolumeHost) GetPodPluginDir(podUID types.UID, pluginName string)
 func (evh *edgedVolumeHost) GetKubeClient() kubernetes.Interface {
 	// TODO: we need figure out a way to return metaClient
 	// return evh.edge.metaClient
-	return nil
+	return evh.edge.kubeClient
 }
 
 func (evh *edgedVolumeHost) NewWrapperMounter(
@@ -136,7 +134,7 @@ func (evh *edgedVolumeHost) GetExec(pluginName string) mount.Exec          { ret
 func (evh *edgedVolumeHost) GetHostIP() (net.IP, error)                    { return nil, nil }
 func (evh *edgedVolumeHost) GetNodeAllocatable() (api.ResourceList, error) { return nil, nil }
 func (evh *edgedVolumeHost) GetNodeLabels() (map[string]string, error)     { return nil, nil }
-func (evh *edgedVolumeHost) GetNodeName() types.NodeName                   { return "" }
+func (evh *edgedVolumeHost) GetNodeName() types.NodeName                   { return types.NodeName(evh.edge.nodeName) }
 func (evh *edgedVolumeHost) GetPodVolumeDeviceDir(podUID types.UID, pluginName string) string {
 	return ""
 }
@@ -167,5 +165,5 @@ func (evh *edgedVolumeHost) GetServiceAccountTokenFunc() func(namespace, name st
 
 func (evh *edgedVolumeHost) GetSubpather() subpath.Interface {
 	// No volume plugin needs Subpaths
-	return nil
+	return subpath.New(evh.edge.mounter)
 }

@@ -1,15 +1,19 @@
 package main
 
 import (
-	"github.com/kubeedge/beehive/pkg/core"
-	"github.com/kubeedge/kubeedge/cloud/pkg/edgecontroller"
-	"github.com/kubeedge/kubeedge/edge/pkg/common/dbm"
-	_ "github.com/kubeedge/kubeedge/edge/pkg/edged"
-	_ "github.com/kubeedge/kubeedge/edge/pkg/metamanager"
+	"os"
+
+	"k8s.io/component-base/logs"
+
+	"github.com/kubeedge/kubeedge/edgesite/cmd/app"
 )
 
 func main() {
-	edgecontroller.Register()
-	dbm.InitDBManager()
-	core.Run()
+	command := app.NewEdgeSiteCommand()
+	logs.InitLogs()
+	defer logs.FlushLogs()
+
+	if err := command.Execute(); err != nil {
+		os.Exit(1)
+	}
 }

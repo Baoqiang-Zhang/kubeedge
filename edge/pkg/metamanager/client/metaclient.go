@@ -3,11 +3,12 @@ package client
 import (
 	"time"
 
-	"github.com/kubeedge/beehive/pkg/common/log"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/klog"
+
 	"github.com/kubeedge/beehive/pkg/core/context"
 	"github.com/kubeedge/beehive/pkg/core/model"
 	"github.com/kubeedge/kubeedge/edge/pkg/metamanager"
-	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 const (
@@ -25,6 +26,9 @@ type CoreInterface interface {
 	SecretsGetter
 	EndpointsGetter
 	ServiceGetter
+	PersistentVolumesGetter
+	PersistentVolumeClaimsGetter
+	VolumeAttachmentsGetter
 }
 
 type metaClient struct {
@@ -66,6 +70,21 @@ func (m *metaClient) Services(namespace string) ServiceInterface {
 	return newServices(namespace, m.context, m.send)
 }
 
+// New PersistentVolumes metaClient
+func (m *metaClient) PersistentVolumes(namespace string) PersistentVolumesInterface {
+	return newPersistentVolumes(namespace, m.context, m.send)
+}
+
+// New PersistentVolumeClaims metaClient
+func (m *metaClient) PersistentVolumeClaims(namespace string) PersistentVolumeClaimsInterface {
+	return newPersistentVolumeClaims(namespace, m.context, m.send)
+}
+
+// New VolumeAttachments metaClient
+func (m *metaClient) VolumeAttachments(namespace string) VolumeAttachmentsInterface {
+	return newVolumeAttachments(namespace, m.context, m.send)
+}
+
 // New creates new metaclient
 func New(c *context.Context) CoreInterface {
 	return &metaClient{
@@ -95,11 +114,11 @@ func (s *send) SendSync(message *model.Message) (*model.Message, error) {
 		resp, err = s.context.SendSync(metamanager.MetaManagerModuleName, *message, syncMsgRespTimeout)
 		retries++
 		if err == nil {
-			log.LOGGER.Infof("send sync message %s successed and response: %v", message.GetResource(), resp)
+			klog.Infof("send sync message %s successed and response: %v", message.GetResource(), resp)
 			return true, nil
 		}
 		if retries < 3 {
-			log.LOGGER.Errorf("send sync message %s failed, error:%v, retries: %d", message.GetResource(), err, retries)
+			klog.Errorf("send sync message %s failed, error:%v, retries: %d", message.GetResource(), err, retries)
 			return false, nil
 		}
 		return true, err

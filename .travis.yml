@@ -28,12 +28,15 @@ before_script:
   - sudo apt-get install build-essential
   - sudo apt-get install gcc-arm-linux-gnueabi
   - sudo apt-get install upx-ucl
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 install: true
 
 jobs:
   include:
+    - stage: "Verify vendor"
+      script: make vendorCheck
+      name: "check if the vendor is up to date"
+
     - stage: "Test lint"
       script: make cloud_lint
       name: "cloud_lint"     # names the eighth Tests stage job
@@ -74,9 +77,11 @@ jobs:
       script: make e2e_test
       name: "e2e_test"     # names the seventh Tests stage job
 
-    - stage: "build docker container"
+    - stage: "build docker images"
       script: make cloudimage
       name: "build cloudimage"
+    - script: make admissionimage
+      name: "build admission image"
     - script: make edgeimage
       name: "build edge image"
     - script: make edgesiteimage

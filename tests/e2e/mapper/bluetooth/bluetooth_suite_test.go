@@ -74,7 +74,7 @@ type Token interface {
 func TestMapperCharacteristics(t *testing.T) {
 	RegisterFailHandler(Fail)
 	var _ = BeforeSuite(func() {
-		utils.InfoV6("Before Suite Execution")
+		utils.Infof("Before Suite Execution")
 		cfg = utils.LoadConfig()
 		ctx = utils.NewTestContext(cfg)
 		t := time.Now()
@@ -98,7 +98,7 @@ func TestMapperCharacteristics(t *testing.T) {
 		req.Header.Set("Content-Type", "application/yaml")
 		resp, err := client.Do(req)
 		Expect(err).To(BeNil())
-		utils.InfoV6("%s %s %v in %v", req.Method, req.URL, resp.Status, time.Now().Sub(t))
+		utils.Infof("%s %s %v in %v", req.Method, req.URL, resp.Status, time.Now().Sub(t))
 		Expect(resp.StatusCode).Should(Equal(http.StatusCreated))
 
 		//Apply CRD for deviceinstance
@@ -113,23 +113,23 @@ func TestMapperCharacteristics(t *testing.T) {
 		req.Header.Set("Content-Type", "application/yaml")
 		resp, err = client.Do(req)
 		Expect(err).To(BeNil())
-		utils.InfoV6("%s %s %v in %v", req.Method, req.URL, resp.Status, time.Now().Sub(t))
+		utils.Infof("%s %s %v in %v", req.Method, req.URL, resp.Status, time.Now().Sub(t))
 		Expect(resp.StatusCode).Should(Equal(http.StatusCreated))
 
-		//Run ./edgecontroller binary
-		Expect(utils.StartEdgeController()).Should(BeNil())
+		//Run ./cloudcore binary
+		Expect(utils.StartCloudCore()).Should(BeNil())
 
 		//Register the Edge Node to Master
 		err = utils.RegisterNodeToMaster(nodeName, ctx.Cfg.K8SMasterForKubeEdge+nodeHandler, nodeSelector)
 		Expect(err).Should(BeNil())
 
-		//Run ./edge_core after node registration
+		//Run ./edgecore after node registration
 		Expect(utils.StartEdgeCore()).Should(BeNil())
 
 		//Check node successfully registered or not
 		Eventually(func() string {
 			status := utils.CheckNodeReadyStatus(ctx.Cfg.K8SMasterForKubeEdge+nodeHandler, nodeName)
-			utils.Info("Node Name: %v, Node Status: %v", nodeName, status)
+			utils.Infof("Node Name: %v, Node Status: %v", nodeName, status)
 			return status
 		}, "60s", "4s").Should(Equal("Running"), "Node register to the k8s master is unsuccessfull !!")
 
@@ -182,7 +182,7 @@ func TestMapperCharacteristics(t *testing.T) {
 		resp, err = client.Do(req)
 		Expect(err).To(BeNil())
 		Expect(resp.StatusCode).Should(Equal(http.StatusCreated))
-		utils.InfoV6("%s %s %v in %v", req.Method, req.URL, resp.Status, time.Now().Sub(t))
+		utils.Infof("%s %s %v in %v", req.Method, req.URL, resp.Status, time.Now().Sub(t))
 
 		//apply CRD for mock deviceinstance
 		curPath = getpwd()
@@ -197,7 +197,7 @@ func TestMapperCharacteristics(t *testing.T) {
 		resp, err = client.Do(req)
 		Expect(err).To(BeNil())
 		Expect(resp.StatusCode).Should(Equal(http.StatusCreated))
-		utils.InfoV6("%s %s %v in %v", req.Method, req.URL, resp.Status, time.Now().Sub(t))
+		utils.Infof("%s %s %v in %v", req.Method, req.URL, resp.Status, time.Now().Sub(t))
 
 		//updating deployment file with edgenode name and dockerhubusername
 		curPath = getpwd()
@@ -267,14 +267,14 @@ func TestMapperCharacteristics(t *testing.T) {
 		Expect(err).Should(BeNil())
 		Eventually(func() int {
 			statuscode := utils.CheckNodeDeleteStatus(ctx.Cfg.K8SMasterForKubeEdge+nodeHandler, nodeName)
-			utils.Info("Node Name: %v, Node Statuscode: %v", nodeName, statuscode)
+			utils.Infof("Node Name: %v, Node Statuscode: %v", nodeName, statuscode)
 			return statuscode
 		}, "60s", "4s").Should(Equal(http.StatusNotFound), "Node register to the k8s master is unsuccessfull !!")
 
 		Expect(utils.CleanUp("deployment")).Should(BeNil())
 		time.Sleep(2 * time.Second)
 
-		utils.Info("Cleanup is Successfull !!")
+		utils.Infof("Cleanup is Successfull !!")
 	})
 	RunSpecs(t, "Kubeedge Mapper Test Suite")
 }

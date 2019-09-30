@@ -1,8 +1,19 @@
 # make cloud part
 
-.PHONY: default cloudcore test
+# get ldflags 
+GO_LDFLAGS=-ldflags '$(shell ../hack/lib/version.sh)'
+
+.PHONY: default cloudcore admission
+
+default: cloudcore admission
+
 cloudcore:
-	go build cmd/cloudcore/cloudcore.go
+	go build ${GO_LDFLAGS} cmd/cloudcore/cloudcore.go
+
+admission:
+	go build ${GO_LDFLAGS} cmd/admission/admission.go
+
+.PHONY: lint
 lint:
 	golangci-lint run --disable-all -E gofmt -E golint --deadline '10m' ./...
 	go vet ./...
@@ -20,7 +31,6 @@ lint:
 #   make test WHAT=pkg/controller/manager/ GOFLAGS=-v
 #   make test GOFLAGS="-v" KUBE_TEST_ARGS="-run ^TestEventToMessage"
 .PHONY: test
-
 test:
 	hack/test.sh $(WHAT)
 
@@ -36,9 +46,11 @@ test:
 #   make test-integration GOFLAGS=-v
 #   make test-integration GOFLAGS=-v KUBE_TEST_ARGS="-run ^TestInvalidDeviceModel$"
 #   make test-integration GOFLAGS=-v WHAT=./test/integration/crds/
+.PHONY: test-integration
 test-integration:
 	hack/test-integration.sh
 
+.PHONY: generate-code
 generate-code:
 	./hack/update-codegen.sh
 

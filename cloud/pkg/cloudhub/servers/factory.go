@@ -16,11 +16,12 @@ const (
 )
 
 func StartCloudHub(protocol string, eventq *channelq.ChannelEventQueue, c *context.Context) {
-	if protocol == ProtocolWebsocket {
+	switch protocol {
+	case ProtocolWebsocket:
 		wsserver.StartCloudHub(util.HubConfig, eventq, c)
-	} else if protocol == ProtocolQuic {
+	case ProtocolQuic:
 		quicserver.StartCloudHub(util.HubConfig, eventq, c)
-	} else {
-		panic(fmt.Errorf("invalid protocol, should be websocket or quic"))
+	default:
+		panic(fmt.Errorf("invalid protocol, should be websocket or quic or uds"))
 	}
 }

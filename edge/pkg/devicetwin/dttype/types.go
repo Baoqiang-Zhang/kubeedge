@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/satori/go.uuid"
+
 	"github.com/kubeedge/kubeedge/edge/pkg/devicetwin/dtclient"
 	"github.com/kubeedge/kubeedge/edge/pkg/devicetwin/dtcommon"
-
-	"github.com/satori/go.uuid"
 )
 
 //Device the struct of device
@@ -148,10 +148,7 @@ func (tv *TwinVersion) UpdateEdgeVersion() {
 
 //CompareWithCloud compare with cloud vershon while dealing cloud update req
 func (tv TwinVersion) CompareWithCloud(tvCloud TwinVersion) bool {
-	if tvCloud.EdgeVersion < tv.EdgeVersion {
-		return false
-	}
-	return true
+	return tvCloud.EdgeVersion >= tv.EdgeVersion
 }
 
 //UpdateCloudVersion update cloud version
